@@ -4,6 +4,13 @@ A simple API to extract bibliographical data from multiple sources.
 
 Created for my personal needs.
 
+## Usage
+
+In development:
+```bash
+uvicorn app.main:app --reload
+```
+
 ## Sources
 
 - [x] FantLab API
