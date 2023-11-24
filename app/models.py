@@ -1,5 +1,5 @@
 from pydantic import BaseModel, HttpUrl, field_validator
-from typing import List, Annotated
+from typing import List
 
 
 class BookQuery(BaseModel):
@@ -11,11 +11,11 @@ class Book(BaseModel):
     source: str
     title: str
     authors: List[str] | str
-    published_year: str | int | None = None
+    published: str | int | None = None
     poster: HttpUrl | None = None
     description: str | None = None
-    
-    @field_validator("published_year")
+
+    @field_validator("published")
     def check_year(cls, year):
         if year is None:
             return None
@@ -32,5 +32,5 @@ if __name__ == "__main__":
         authors="Брэндон Сандерсон",
         published_year="2017",
         description="test",
-        poster="https://fantlab.ru/images/editions/orig/190247?r=1492536245"
+        poster="https://fantlab.ru/images/editions/orig/190247?r=1492536245",
     )

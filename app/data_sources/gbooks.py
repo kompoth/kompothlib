@@ -1,9 +1,10 @@
 from aiohttp import ClientSession
-import asyncio
 from typing import List
 from datetime import datetime
+import logging
+from pydantic import ValidationError
 
-from app.models import Book, BookQuery 
+from app.models import Book, BookQuery
 
 API_URI = "https://www.googleapis.com/books/v1"
 
@@ -16,18 +17,17 @@ async def search_volumes(session: ClientSession, query: BookQuery) -> dict:
         query_list.append("intitle:" + query.title)
     if not len(query_list):
         raise ValueError("Not enough data to perform search")
-    query_str = "+".join(query_list) 
+    query_str = "+".join(query_list)
 
     params = {"q": query_str}
     async with session.get(API_URI + "/volumes", params=params) as resp:
         data = await resp.json()
     items = data.get("items", [])
     vols = [it["volumeInfo"] for it in items]
-    print(vols)
     return vols
 
 
-async def get_books(query: BookQuery) -> List[Book]:
+async def gbooks_get_books(query: BookQuery) -> List[Book]:
     async with ClientSession() as session:
         results = await search_volumes(session, query)
 
@@ -41,22 +41,18 @@ async def get_books(query: BookQuery) -> List[Book]:
                 raise RuntimeError(
                     f"Failed to get year from date '{published}'"
                 )
-        book = Book(
-            source="Google Books",
-            title=res["title"],
-            authors=res["authors"],
-            description=res.get("description"),
-            published_year=published,
-            poster=res.get("imageLinks", {}).get("thumbnail")
-        )
-        books.append(book)
+        try:
+            book = Book(
+                source="Google Books",
+                title=res["title"],
+                authors=res["authors"],
+                description=res.get("description"),
+                published=published,
+                poster=res.get("imageLinks", {}).get("thumbnail"),
+            )
+            books.append(book)
+        except (KeyError, ValidationError) as err:
+            logging.warning(
+                f"Failed to handle '{res.get('title')}': " + str(err)
+            )
     return books
-
-
-if __name__ == "__main__":
-    query = BookQuery(
-        author="Сандерсон"
-    )
-    books = asyncio.run(get_books(query))
-    for book in books:
-        print(book)

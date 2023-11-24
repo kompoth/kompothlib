@@ -6,7 +6,7 @@ Created for my personal needs.
 
 ## Sources
 
-- [ ] FantLab API
+- [x] FantLab API
 - [x] Google Books
 
 ## Expected output
@@ -14,7 +14,7 @@ Created for my personal needs.
 A list of books with following data:
 
 - Title
-- Publication date
+- Year of publication
 - Authors
-- Poster image
+- Poster image link
 - Description
