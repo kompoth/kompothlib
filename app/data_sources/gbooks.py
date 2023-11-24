@@ -3,7 +3,7 @@ import asyncio
 from typing import List
 from datetime import datetime
 
-from .models import Book, BookQuery 
+from app.models import Book, BookQuery 
 
 API_URI = "https://www.googleapis.com/books/v1"
 
@@ -23,6 +23,7 @@ async def search_volumes(session: ClientSession, query: BookQuery) -> dict:
         data = await resp.json()
     items = data.get("items", [])
     vols = [it["volumeInfo"] for it in items]
+    print(vols)
     return vols
 
 
@@ -41,12 +42,12 @@ async def get_books(query: BookQuery) -> List[Book]:
                     f"Failed to get year from date '{published}'"
                 )
         book = Book(
-            source="FantLab",
+            source="Google Books",
             title=res["title"],
             authors=res["authors"],
             description=res.get("description"),
             published_year=published,
-            poster=res.get("thumbnail")
+            poster=res.get("imageLinks", {}).get("thumbnail")
         )
         books.append(book)
     return books
