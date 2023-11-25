@@ -27,7 +27,7 @@ async def search_volumes(session: ClientSession, query: BookQuery) -> dict:
     return vols
 
 
-async def gbooks_get_books(query: BookQuery) -> List[Book]:
+async def gbooks_search(query: BookQuery) -> List[Book]:
     async with ClientSession() as session:
         results = await search_volumes(session, query)
 

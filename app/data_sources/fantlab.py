@@ -6,7 +6,8 @@ from app.models import Book, BookQuery
 
 API_URI = "https://api.fantlab.ru"
 MAIN_URI = "https://fantlab.ru"
-IGNORE = "cycle"
+IGNORE = ("cycle")
+MAX_WORKS = 10
 
 
 async def search_works(session: ClientSession, query: BookQuery) -> dict:
@@ -16,7 +17,12 @@ async def search_works(session: ClientSession, query: BookQuery) -> dict:
 
     async with session.get(API_URI + "/search-works", params=params) as resp:
         data = await resp.json()
-    return data["matches"]
+    works = data["matches"]
+    work_ids = [
+        str(work["work_id"]) for work in works
+        if work["name_eng"] not in IGNORE
+    ][:MAX_WORKS]
+    return work_ids
 
 
 async def get_works(session: ClientSession, work_id: str) -> dict:
@@ -25,22 +31,16 @@ async def get_works(session: ClientSession, work_id: str) -> dict:
     return data
 
 
-async def fantlab_get_books(query: BookQuery) -> List[Book]:
+async def fantlab_search(query: BookQuery) -> List[Book]:
     async with ClientSession() as session:
-        works = await search_works(session, query)
-        work_ids = [
-            str(work["work_id"])
-            for work in works
-            if work["name_eng"] not in IGNORE
-        ]
+        work_ids = await search_works(session, query)
         tasks = [get_works(session, work_id) for work_id in work_ids]
         results = await asyncio.gather(*tasks)
 
     books = []
     for res in results:
         poster = res.get("image")
-        if poster:
-            poster = MAIN_URI + poster
+        poster = None if poster is None else MAIN_URI + poster
         book = Book(
             source="FantLab",
             title=res["work_name"],
