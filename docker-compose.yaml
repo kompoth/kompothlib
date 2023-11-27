@@ -1,0 +1,10 @@
+services:
+
+  app:
+    build:
+        context: .
+    container_name: kompothlib
+    ports:
+        - "8000:80"
+    volumes:
+      - .:/app

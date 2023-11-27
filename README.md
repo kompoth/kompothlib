@@ -2,13 +2,15 @@
 
 A simple API to extract bibliographical data from multiple sources.
 
-Created for my personal needs.
+This project is developed to meet my personal needs, and it may not cater your
+All suggestions are welcome, but please understand that I may not implement some ideas.
 
 ## Usage
 
-In development:
+To run service in a container:
+
 ```bash
-uvicorn app.main:app --reload
+docker compose up --build -d
 ```
 
 ## Sources
