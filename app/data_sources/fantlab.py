@@ -6,7 +6,7 @@ from app.models import Book, BookQuery
 
 API_URI = "https://api.fantlab.ru"
 MAIN_URI = "https://fantlab.ru"
-IGNORE = ("cycle")
+IGNORE = ("cycle", "review", "other")
 MAX_WORKS = 10
 
 

@@ -5,6 +5,7 @@ import logging
 from pydantic import ValidationError
 
 from app.models import Book, BookQuery
+from app.utils import extract_year
 
 API_URI = "https://www.googleapis.com/books/v1"
 
@@ -34,13 +35,8 @@ async def gbooks_search(query: BookQuery) -> List[Book]:
     books = []
     for res in results:
         published = res.get("publishedDate")
-        if published and len(published) != 4:
-            try:
-                published = datetime.fromisoformat(published).year
-            except ValueError:
-                raise RuntimeError(
-                    f"Failed to get year from date '{published}'"
-                )
+        if published:
+            published = extract_year(published)
         try:
             book = Book(
                 source="Google Books",
